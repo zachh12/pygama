@@ -91,7 +91,6 @@ def process_orca(t0_file, t1_file, n_max, decoders, config, verbose, run=None):
     convert ORCA DAQ data to pygama "raw" lh5
     """
     ROW_LIMIT = 5e4
-
     start = time.time()
     f_in = open(t0_file.encode('utf-8'), "rb")
     if f_in == None:
@@ -126,6 +125,20 @@ def process_orca(t0_file, t1_file, n_max, decoders, config, verbose, run=None):
         if tmp.decoder_name in used_ids:
             # tmp.apply_config(config) # broken rn
             decoders.append(tmp)
+
+    #ZCH Temp fix for decoder mixup (3302/3316 orca confusion)
+    strucks = []
+    for decoder in decoders:
+        if decoder.decoder_name == 'ORSIS3302DecoderForEnergy':
+            strucks.append('ORSIS3302DecoderForEnergy')
+        if decoder.decoder_name == 'ORSIS3316WaveformDecoder':
+            strucks.append('ORSIS3316WaveformDecoder')
+    if len(strucks) == 2:
+        decoders = decoders[1:2]
+        print("\033[93m' + daw_to_raw.py WARNING")
+        print("WARNING: Throwing away ORSIS3302DecoderForEnergy")
+        print("WARNING: Throwing away ISegHVDecoder" + '\033[0m')
+
     decoder_to_id = {d.decoder_name: d for d in decoders}
     if verbose:
         print("pygama will run these decoders:")

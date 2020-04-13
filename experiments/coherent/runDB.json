@@ -1,4 +1,5 @@
 {
+
   "loc_dir":"$DATADIR/coherent",
   "raw_dir":"$DATADIR/coherent/data",
   "tier1_dir":"$DATADIR/coherent/tier1",
@@ -35,33 +36,25 @@
         "clk" : 100e6,
         "fit_bl" : {"ihi":600, "order":1},
         "blsub" : {},
-        "dADC" : {},
-        "pz" : {"decay":82},
+        "pz" : {"decay":72},
         "notch" : {"f_notch":30e6, "Q":1},
-        "savgol" : [
-            {"wfin":"wf_blsub", "wfout":"wf_savgol", "window":47, "order":2},
-            {"wfin":"wf_notch", "wfout":"wf_notsav", "window":47, "order":2}
-        ],
         "trap" : [
             {"wfout":"wf_etrap", "wfin":"wf_notch", "rise":1.5, "flat":2.5, "decay":72},
-            {"wfout":"wf_strap", "wfin":"wf_notch", "rise":1, "flat":1.5, "decay":72},
-            {"wfout":"wf_atrap", "wfin":"wf_notch", "rise":0.04, "flat":0.1, "fall":2},
-            {"wfout":"wf_ttrap", "wfin":"wf_notch", "rise":1, "flat":0, "fall":1}
+            {"wfout":"wf_ttrap", "wfin":"wf_notch", "rise":1, "flat":0, "fall":1},
+            {"wfout":"wf_pztrap", "wfin":"wf_pz", "rise":1, "flat":0, "decay":72}
         ],
         "current" : [
             {"wfin":"wf_blsub", "wfout":"wf_current", "sigma":5}
         ],
         "get_max" : [
-            {"wfin":"wf_etrap"}, {"wfin":"wf_strap"}, {"wfin":"wf_atrap"},
-            {"wfin":"wf_ttrap"}, {"wfin":"wf_savgol"}, {"wfin":"wf_current"}
+            {"wfin":"wf_notch"},
+            {"wfin":"wf_current"}
         ],
-        "timepoint" : {"wfin":"wf_savgol", "pct":[5,10,50,90,100]},
+        "timepoint" : {"wfin":"wf_notch", "pct":[5,90,100]},
         "peakdet" : [
             {"delta":0.5, "sigma":5, "ihi":600}
         ],
-        "num_peaks" : {},
-        "ftp" : {},
-        "overflow" : {}
+        "num_peaks" : {}
       }
     }
   }

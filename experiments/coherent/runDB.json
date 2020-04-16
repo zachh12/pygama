@@ -42,16 +42,16 @@
         "trap" : [
             {"wfout":"wf_etrap", "wfin":"wf_notch", "rise":1.5, "flat":2.5, "decay":72},
             {"wfout":"wf_ttrap", "wfin":"wf_notch", "rise":1, "flat":0, "fall":1},
-            {"wfout":"wf_pztrap", "wfin":"wf_pz", "rise":1, "flat":0, "decay":72}
+            {"wfout":"wf_pztrap", "wfin":"wf_pz", "rise":1.5, "flat":2.5, "decay":72}
         ],
         "current" : [
             {"wfin":"wf_blsub", "wfout":"wf_current", "sigma":5}
         ],
         "get_max" : [
-            {"wfin":"wf_notch"},
-            {"wfin":"wf_current"}
+            {"wfin":"wf_current"},
+            {"wfin":"wf_blsub"}
         ],
-        "timepoint" : {"wfin":"wf_notch", "pct":[5,90,100]},
+        "timepoint" : {"wfin":"wf_blsub", "pct":[5,90,100]},
         "peakdet" : [
             {"delta":0.5, "sigma":5, "ihi":600}
         ],

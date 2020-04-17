@@ -1,10 +1,10 @@
 import numpy as np
 import scipy.signal as signal
-
+import matplotlib.pyplot as plt
 def blsub(wf):
     return wf - np.mean(wf[0:25])
     
-def pz(wf, clk=100e6, decay):
+def pz(wf, decay, clk=100e6):
     """
     pole-zero correct a waveform
     decay is in us, clk is in Hz
@@ -17,53 +17,50 @@ def pz(wf, clk=100e6, decay):
     # reversing num and den does the inverse transform (ie, PZ corrects)
     return signal.lfilter(den, num, wf)
 
-def trap(wf, clk=100e6, rise, flat, fall=None, decay=0):
+def trap(waveform, rampTime=150, flatTime=250, decayTime=0, baseline=0.):
     """
-    trapezoid filter.
-    inputs are in microsec (rise, flat, fall, decay)
+    Apply a trap filter to a waveform.
     """
+    decayConstant = 0.
+    norm = rampTime
+    if decayTime != 0:
+        decayConstant = 1. / (np.exp(1. / decayTime) - 1)
+        norm *= decayConstant
 
-    # convert params to units of [num samples, i.e. clock ticks]
-    nsamp = 1e10 / clk
-    rt, ft, dt = int(rise * nsamp), int(flat * nsamp), decay * nsamp
-    flt = rt if fall is None else int(fall * nsamp)
+    trapOutput = np.zeros_like(waveform)
+    fVector = np.zeros_like(waveform)
+    scratch = np.zeros_like(waveform)
+    fVector[0] = waveform[0] - baseline
+    trapOutput[0] = (decayConstant + 1.) * (waveform[0] - baseline)
 
-    # calculate trapezoids
-    if rt == flt:
-        """
-        symmetric case, use recursive trap (fastest)
-        """
-        tr1, tr2, tr3 = np.zeros_like(wfs), np.zeros_like(wfs), np.zeros_like(
-            wfs)
-        tr1[:, rt:] = wfs[:, :-rt]
-        tr2[:, (ft + rt):] = wfs[:, :-rt - ft]
-        tr3[:, (rt + ft + flt):] = wfs[:, :-rt - ft - flt]
-        scratch = (wfs - tr1) - (tr2 - tr3)
-        atrap = np.cumsum(scratch, axis=1) / rt
+    wf_minus_ramp = np.zeros_like(waveform)
+    wf_minus_ramp[:rampTime] = baseline
+    wf_minus_ramp[rampTime:] = waveform[:len(waveform) - rampTime]
+
+    wf_minus_ft_and_ramp = np.zeros_like(waveform)
+    wf_minus_ft_and_ramp[:(flatTime + rampTime)] = baseline
+    wf_minus_ft_and_ramp[(flatTime + rampTime):] = waveform[:len(waveform) - flatTime - rampTime]
+
+    wf_minus_ft_and_2ramp = np.zeros_like(waveform)
+    wf_minus_ft_and_2ramp[:(flatTime + 2 * rampTime)] = baseline
+    wf_minus_ft_and_2ramp[(flatTime + 2 * rampTime):] = waveform[:len(waveform) - flatTime -
+                                              2 * rampTime]
+
+    scratch = waveform - (wf_minus_ramp +
+                          wf_minus_ft_and_ramp - # NOTE: clint changed this to - after walter convinced him
+                          wf_minus_ft_and_2ramp)
+
+    if decayConstant != 0:
+        fVector = np.cumsum(fVector + scratch)
+        trapOutput = np.cumsum(trapOutput + fVector + decayConstant * scratch)
     else:
-        """
-        asymmetric case, use the fastest non-recursive algo i could find.
-        (I also tried scipy.ndimage.convolve1d, scipy.signal.[fft]convolve)
-        TODO (someday): change this to be recursive (need to math it out)
-        https://www.sciencedirect.com/science/article/pii/0168900294910111
-        """
-        kernel = np.zeros(rt + ft + flt)
-        kernel[:rt] = 1 / rt
-        kernel[rt + ft:] = -1 / flt
-        atrap = np.zeros_like(wfs)  # faster than a list comprehension
-        for i, wf in enumerate(wfs):
-            atrap[i, :] = np.convolve(wf, kernel, 'same')
-        npad = int((rt+ft+flt)/2)
-        atrap = np.pad(atrap, ((0, 0), (npad, 0)), mode='constant')[:, :-npad]
-        # atrap[:, -(npad):] = 0
+        trapOutput = np.cumsum(trapOutput + scratch)
 
-    # pole-zero correct the trapezoids
-    if dt != 0:
-        rc = 1 / np.exp(1 / dt)
-        num, den = [1, -1], [1, -rc]
-        ptrap = signal.lfilter(den, num, atrap)    
+    # Normalize and resize output
+    tmp_hi = len(waveform) - (2 * rampTime + flatTime)
+    trapOutput[:tmp_hi] = trapOutput[2 * rampTime + flatTime:] / norm
+    trapOutput.resize((len(waveform) - (2 * rampTime + flatTime)))
+    return trapOutput
 
-    if dt != 0:
-        return ptrap
-    else:
-        return atrap
+
+

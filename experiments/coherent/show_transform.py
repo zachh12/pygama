@@ -20,13 +20,15 @@ def main(run):
 
     #Pull a waveform for testing
     df = pd.read_hdf("../../../data/coherent/tier1/t1_run1796.h5", key='ORSIS3316WaveformDecoder')
-    wf = df.iloc[25][8:]
-    plt.plot(wf)
+    wf = df.iloc[3089][8:]
 
-    plt.plot(blsub(wf))
+    bl = blsub(wf)
+    pzs = pz(bl, 72, 100e6)
+    trapped = trap(pzs)
+    plt.plot(bl)
+    plt.plot(pzs)
+    plt.plot(trapped)
     plt.show()
-
-
 
 
 if __name__ == '__main__':

@@ -22,13 +22,28 @@ def main(run):
     df = pd.read_hdf("../../../data/coherent/tier1/t1_run1796.h5", key='ORSIS3316WaveformDecoder')
     wf = df.iloc[3089][8:]
 
-    bl = blsub(wf)
-    pzs = pz(bl, 72, 100e6)
-    trapped = trap(pzs)
-    plt.plot(bl)
-    plt.plot(pzs)
-    plt.plot(trapped)
+    A = []
+    for i in range(0, 200):
+        try:
+            wf = df.iloc[i][8:]
+            bl = blsub(wf)
+            curr = current(bl)
+            maximum, minimum = np.amax(curr), np.amin(curr)
+            if maximum > np.abs(minimum):
+                A.append(maximum)
+            else:
+                A.append(minimum)
+            plt.figure(1)
+            plt.plot(curr)
+        except:
+            continue
+    print(A)
+    plt.figure(0)
+    plt.hist(A, bins=30, histtype='step')
+    plt.figure(1)
     plt.show()
+
+
 
 
 if __name__ == '__main__':

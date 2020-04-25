@@ -45,15 +45,12 @@
             {"wfin":"wf_blsub", "wfout":"wf_current", "sigma":5}
         ],
         "get_max" : [
-            {"wfin":"wf_pztrap"},
             {"wfin":"wf_current"},
-            {"wfin":"wf_blsub"}
+            {"wfin":"wf_pztrap"},
+            {"wfin":"wf_pz"}
         ],
-        "timepoint" : {"wfin":"wf_blsub", "pct":[5,90,100]},
-        "peakdet" : [
-            {"delta":0.5, "sigma":5, "ihi":600}
-        ],
-        "num_peaks" : {}
+        "timepoint" : {"wfin":"wf_pz", "pct":[5,50,90,100]},
+        "dcr" : {"wfin":"wf_pz"}
       }
     }
   }

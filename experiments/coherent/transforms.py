@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.signal as signal
 import matplotlib.pyplot as plt
+import scipy.ndimage as ndimage
 def blsub(wf):
     return wf - np.mean(wf[0:25])
     
@@ -62,5 +63,13 @@ def trap(waveform, rampTime=150, flatTime=250, decayTime=0, baseline=0.):
     trapOutput.resize((len(waveform) - (2 * rampTime + flatTime)))
     return trapOutput
 
+def current(wf, sigma=5):
+    """
+    calculate the current trace,
+    by convolving w/ first derivative of a gaussian.
+    """
 
+    wfc = ndimage.filters.gaussian_filter1d(wf, sigma=sigma, order=1) # lol
+
+    return wfc
 

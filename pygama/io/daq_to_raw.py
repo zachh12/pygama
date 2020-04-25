@@ -133,9 +133,10 @@ def process_orca(t0_file, t1_file, n_max, decoders, config, verbose, run=None):
             strucks.append('ORSIS3302DecoderForEnergy')
         if decoder.decoder_name == 'ORSIS3316WaveformDecoder':
             strucks.append('ORSIS3316WaveformDecoder')
+
     if len(strucks) == 2:
-        decoders = decoders[1:2]
-        print("\033[93m' + daw_to_raw.py WARNING")
+        decoders = decoders[0:1]
+        print("\033[93m' + daq_to_raw.py WARNING")
         print("WARNING: Throwing away ORSIS3302DecoderForEnergy")
         print("WARNING: Throwing away ISegHVDecoder" + '\033[0m')
 

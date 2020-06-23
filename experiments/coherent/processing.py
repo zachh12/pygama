@@ -14,7 +14,7 @@ def main(argv):
     defined in a JSON file.
     """
     run_db = './runDB.json'
-    
+
     # -- parse args --
     par = argparse.ArgumentParser(description="data processing suite for MJ60")
     arg, st, sf = par.add_argument, "store_true", "store_false"

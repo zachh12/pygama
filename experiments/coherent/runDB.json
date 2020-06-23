@@ -37,20 +37,21 @@
         "clk" : 100e6,
         "fit_bl" : {"ihi":600, "order":1},
         "blsub" : {},
-        "pz" : {"decay":72},
+        "pz" : {"decay":82},
+        "notch" : {"f_notch":30e6, "Q":1},
+        "savgol" : {"wfin":"wf_blsub", "wfout":"wf_savgol", "window":47, "order":2},
         "trap" : [
-            {"wfout":"wf_pztrap", "wfin":"wf_pz", "rise":1.5, "flat":2.5, "decay":72}
+            {"wfout":"wf_etrap", "wfin":"wf_blsub", "rise":4, "flat":2.5, "decay":72},
+            {"wfout":"wf_atrap", "wfin":"wf_notch", "rise":0.04, "flat":0.1, "fall":2}
         ],
-        "current" : [
-            {"wfin":"wf_blsub", "wfout":"wf_current", "sigma":5}
-        ],
+        "current" : {"wfin":"wf_blsub", "wfout":"wf_current", "sigma":5},
         "get_max" : [
-            {"wfin":"wf_current"},
-            {"wfin":"wf_pztrap"},
-            {"wfin":"wf_pz"}
+            {"wfin":"wf_etrap"}, {"wfin":"wf_atrap"}, {"wfin":"wf_current"},
+            {"wfin":"wf_savgol"},{"wfin":"wf_blsub"}
         ],
-        "timepoint" : {"wfin":"wf_pz", "pct":[5,50,90,100]},
-        "dcr" : {"wfin":"wf_pz"}
+        "ftp" : {},
+        "timepoint" : {"wfin":"wf_blsub", "pct":[5,10,50,100]},
+        "dcr" : {"wfin":"wf_savgol"}
       }
     }
   }

@@ -160,7 +160,7 @@ class ORCAStruck3302(DataTaker):
         # send any variable with a name in "decoded_values" to the pandas output
         self.format_data(locals())
 
-
+'''
 class LLAMAStruck3316(DataTaker):
     """ 
     decode Struck 3316 digitizer data
@@ -373,7 +373,7 @@ class LLAMAStruck3316(DataTaker):
 
         # send any variable with a name in "decoded_values" to the pandas output
         self.format_data(locals())
-
+'''
 
 class CAENDT57XX(DataTaker):
     """
@@ -609,7 +609,7 @@ class SIS3316ORCADecoder(DataTaker):
         self.ievt = 0       #event number
         self.ievt_gbg = 0      #garbage event number
         self.window = False
-        self.pytables_col_limit = 5000
+        self.pytables_col_limit = 100000
         self.df_metadata = None
         
         
@@ -636,6 +636,7 @@ class SIS3316ORCADecoder(DataTaker):
 
         # compute expected and actual array dimensions
         wf_length16 = 1024
+        wf_length16 = 8192
         orca_helper_length16 = 52
         header_length16 = orca_helper_length16
         ene_wf_length16 = 2 * ene_wf_length
@@ -655,7 +656,14 @@ class SIS3316ORCADecoder(DataTaker):
         i_ene_start = i_wf_stop + 1
         i_ene_stop = i_ene_start + ene_wf_length16
 
-
+        #import matplotlib.pyplot as plt
+        #plt.plot(evt_data_16[100: -100])
+        #plt.show()
+        #print(evt_data_16)
+        #print(len(evt_data_16))
+        #print(evt_data_16[0:30])
+        #print(expected_wf_length*2)
+        #exit()
         # handle the waveform(s)
         if wf_length16 > 0:
             wf_data = evt_data_16[i_wf_start:i_wf_stop]
@@ -667,6 +675,8 @@ class SIS3316ORCADecoder(DataTaker):
         #          (expected_wf_length, len(wf_data)))
         #    exit()
 
+        if len(wf_data) < 8192:
+            return
         # final raw wf array
         waveform = wf_data
 

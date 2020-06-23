@@ -181,6 +181,7 @@ def process_orca(t0_file, t1_file, n_max, decoders, config, verbose, run=None):
 
     # final write to file
     for d in decoders:
+            print(d)
             try:
                 d.save_to_pytables(t1_file, verbose=True)
             except Exception as e:
